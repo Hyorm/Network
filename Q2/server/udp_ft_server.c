@@ -115,7 +115,8 @@ void recv_binary_file(int serv_sock, struct sockaddr_in clnt_adr, socklen_t clnt
 
 		fwrite(buf_msg, s, 1, fp);
 
-		len += s;	
+		len += s;
+		sendto(serv_sock, "O", sizeof("O")-1, 0, (struct sockaddr*)&clnt_adr, clnt_adr_sz);
 	}
 	fclose(fp);
 	

@@ -132,7 +132,8 @@ void send_binary_file(int sock, char* filename){
 		while(send_len < read_size &&  (nfile = write(sock, pfile_content, read_size - send_len))> 0 ){
 			pfile_content += nfile;
 			send_len += nfile;
-		}	
+		}
+		read(sock, pfile_content, sizeof("O")-1);
 	}
 	gettimeofday(&send_end, NULL);
 	
