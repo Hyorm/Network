@@ -64,8 +64,6 @@ void recv_binary_file(int serv_sock, struct sockaddr_in clnt_adr, socklen_t clnt
 		sndpkt.sqno = sqno_;
 		strcpy(sndpkt.data, "0");
 	
-		//  4: udp send
-		s = sendto(serv_sock, &sndpkt, sizeof(sndpkt), 0, (struct sockaddr*)&clnt_adr, clnt_adr_sz);
 		if((rd > 0) && (rcvpkt.sqno == sqno_)){
 			if(sqno_ == 1)
 				sqno_ = 0;
@@ -78,16 +76,21 @@ void recv_binary_file(int serv_sock, struct sockaddr_in clnt_adr, socklen_t clnt
 	//	2: extract data
 	rcvpkt.data[strlen(rcvpkt.data)] = '\0';
 	fp = fopen(rcvpkt.data, "wb");	
-
+    printf("%s %d\n", rcvpkt.data, sqno_);
 	//recv file size
+    int first_f = 0;
 	while(1){
-		rd = recvfrom(serv_sock, &rcvpkt, sizeof(rcvpkt), 0, (struct sockaddr*)&clnt_adr, &clnt_adr_sz);
+        while(first_f== 0){
+            s = sendto(serv_sock, &sndpkt, sizeof(sndpkt), 0, (struct sockaddr*)&clnt_adr, clnt_adr_sz        );
+		    rd = recvfrom(serv_sock, &rcvpkt, sizeof(rcvpkt), 0, (struct sockaddr*)&clnt_adr, &clnt_adr_sz);
+            if(rcvpkt.sqno == sqno_)break;
+        }
+        if(first_f == 1)rd = recvfrom(serv_sock, &rcvpkt, sizeof(rcvpkt), 0, (struct sockaddr*)&clnt_adr, &clnt_adr_sz);
+        first_f = 1;
         //  3: make packet(ack, !sqno_, checksum)
         sndpkt.sqno = sqno_;
         strcpy(sndpkt.data, "0");
 
-        //  4: udp send
-        s = sendto(serv_sock, &sndpkt, sizeof(sndpkt), 0, (struct sockaddr*)&clnt_adr, clnt_adr_sz);
         if((rd > 0) && (rcvpkt.sqno == sqno_)){
             if(sqno_ == 1)
                 sqno_ = 0;                                                                                 else
@@ -100,11 +103,18 @@ void recv_binary_file(int serv_sock, struct sockaddr_in clnt_adr, socklen_t clnt
 	file_len = atoi(rcvpkt.data);
 	
 	//TODO: recv file data
+    
 	while(file_len > len){
 		//  1: rdt_rcv && check sqno_
 		while(1){
-			rd = recvfrom(serv_sock, &rcvpkt, sizeof(rcvpkt), 0, (struct sockaddr*)&clnt_adr, &clnt_adr_sz);
-			//  3: make packet(ack, !sqno_, checksum)
+            while(first_f == 1){
+                s = sendto(serv_sock, &sndpkt, sizeof(sndpkt), 0, (struct sockaddr*)&clnt_adr, clnt_adr_sz        );
+			    rd = recvfrom(serv_sock, &rcvpkt, sizeof(rcvpkt), 0, (struct sockaddr*)&clnt_adr, &clnt_adr_sz);
+                if(rcvpkt.sqno == sqno_)break;
+            }
+            if(first_f == 0)rd = recvfrom(serv_sock, &rcvpkt, sizeof(rcvpkt), 0, (struct sockaddr*)&clnt_adr,         &clnt_adr_sz);
+            first_f = 0;
+            //  3: make packet(ack, !sqno_, checksum)
 			sndpkt.sqno = sqno_;
 			strcpy(sndpkt.data, "0");
 

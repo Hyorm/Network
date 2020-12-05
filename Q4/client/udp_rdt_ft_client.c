@@ -91,16 +91,19 @@ void send_binary_file(int sock, char* filename){
 	while(1){
 		s = write(sock, &sndpkt, sizeof(sndpkt));
 		rd = read(sock, &rcvpkt, sizeof(MAX));
+
+		printf("%d %d ", rd,rcvpkt.sqno);
 		//  3. start_timer & (timeout || stop_timer)
 		if((rd > 0) && rcvpkt.sqno == sqno_){
-			if(sqno_ == 1)
-               	    sqno_ = 0;
-			else
-           		sqno_ = 1;
+			if(sqno_ == 1){
+               	   		sqno_ = 0;
+			}else{
+           			sqno_ = 1;
+			}
 			break;
 		}
 	}
-
+	printf("%s %d\n", sndpkt.data, sqno_);
 	//send file size
 	 //      1. make_pkt
     sndpkt.sqno = sqno_;
