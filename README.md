@@ -1,4 +1,5 @@
 # Network(Study)
+study network algorithm with C and x86
 
 ## Summary
 ### Q1    
