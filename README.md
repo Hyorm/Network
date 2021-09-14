@@ -61,7 +61,7 @@ in the server following the guide.
 - Your programs should follow the usage below.
 #### Usage
 Server: 
-<code># ./udp_rdt_ft_server <port></code>
+<code># ./udp_rdt_ft_server <port></code><br>
 <code>Client: # ./udp_rdt_ft_client <IP> < port> <filename></code>
 - Your programs can freely display the status of file transferring, e.g., transmission, retransmission, ACK,
 and timeout, etc.
